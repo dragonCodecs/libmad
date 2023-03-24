@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2023 Amyspark <amy@amyspark.me>
+# SPDX-License-Identifier: BSD-3-Clause
+
+option('optimize', type : 'combo', choices : ['speed', 'accuracy'], value: 'speed', description: 'Optimize for SPEED (default) or ACCURACY')
+option('aso', type: 'boolean', value: true, description: 'Enable CPU Architecture Specific Optimizations (x86, ARM, and MIPS only)')
+option('fixed_point', type: 'boolean', value: 'true', description: 'Use fixed point math. If not a 64-bit platform, x86, Arm, MIPS, SPARC or PowerPC, it will yield limited accuracy.')
+option('example', type: 'boolean', value: 'true', description: 'Build example executable')
