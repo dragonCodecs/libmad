@@ -139,8 +139,15 @@ else
 endif
 
 extern_prefix = compiler.symbols_have_underscore_prefix() ? '_' : ''
-
-makedef_args += ['--prefix', extern_prefix]
+if target_machine.system() == 'windows'
+    makedef_args += ['--prefix', extern_prefix]
+    makedef_args += ['--format', 'msvc']
+elif target_machine.system() == 'darwin'
+    makedef_args += ['--format', 'darwin']
+else
+    makedef_args += ['--prefix', extern_prefix]
+    makedef_args += ['--format', 'gcc']
+endif
 
 vs_module_def = custom_target(
     'mad_def',
@@ -149,10 +156,21 @@ vs_module_def = custom_target(
     capture: true
 )
 
+mad_link_deps = []
+mad_link_args = []
+if target_machine.system() == 'darwin'
+    mad_link_args += '-Wl,-exported_symbols_list,@0@'.format(meson.current_build_dir() / 'libmad.def')
+    mad_link_deps += vs_module_def
+elif target_machine.system() != 'windows' and target_machine.system() != 'cygwin'
+    mad_link_args += '-Wl,--version-script=@0@'.format(meson.current_build_dir() / 'libmad.def')
+    mad_link_deps += vs_module_def
+endif
+
 mad = library(
     'mad',
-    c_args: mad_args,
     link_whole: mad_tmp,
+    link_args: mad_link_args,
+    link_depends: mad_link_deps,
     vs_module_defs: vs_module_def,
     version: meson.project_version(),
     soversion: meson.project_version(),
